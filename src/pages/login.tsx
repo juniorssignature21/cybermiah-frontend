@@ -69,7 +69,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-secondary/30 p-4">
       <div className="w-full max-w-md bg-card border shadow-sm p-8 rounded-lg">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-serif text-foreground mb-2">Sign In</h1>
+          <h1 className="text-3xl font-serif text-foreground mb-2">Log In</h1>
           <p className="text-muted-foreground">Access your quiz platform</p>
         </div>
 
