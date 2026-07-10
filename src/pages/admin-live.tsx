@@ -7,7 +7,7 @@ export default function AdminLive() {
   return (
     <div className="p-8 max-w-5xl mx-auto">
       <h1 className="text-3xl font-serif mb-2">Live Dashboard</h1>
-      <p className="text-muted-foreground mb-8">Real-time attempt statistics (Auto-refreshes every 5s)</p>
+      <p className="text-muted-foreground mb-8">Real-time attempts statistics (Auto-refreshes every 5s)</p>
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
