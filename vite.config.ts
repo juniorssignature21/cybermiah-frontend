@@ -16,7 +16,6 @@ if (Number.isNaN(port) || port <= 0) {
 }
 
 const basePath = (env.BASE_PATH || process.env.BASE_PATH || '/').trim();
-
 export default defineConfig({
   base: basePath,
   plugins: [
@@ -53,6 +52,13 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, 'dist/public'),
     emptyOutDir: true,
+    sourcemap: false,                      // ✅ Fixes sourcemap warning
+    rollupOptions: {
+      onwarn(warning, warn) {
+        if (warning.code === 'SOURCEMAP_ERROR') return   // ✅ Suppresses the error
+        warn(warning)
+      },
+    },
   },
   server: {
     port,
