@@ -1,0 +1,5 @@
+.env
+*.yaml
+*.mjs
+.replit-artifact
+node_modules
