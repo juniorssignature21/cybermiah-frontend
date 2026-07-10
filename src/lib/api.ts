@@ -1,7 +1,7 @@
 
 function getDefaultApiBaseUrl() {
   if (typeof window === 'undefined') {
-    return 'http://localhost:8000';
+    return ' https://a763-102-90-99-154.ngrok-free.app';
   }
   if (import.meta.env.PROD) {
     return `${window.location.origin}/api`;
