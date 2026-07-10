@@ -1,4 +1,3 @@
-const api = process.env.VITE_API_BASE_URL || getDefaultApiBaseUrl();
 
 function getDefaultApiBaseUrl() {
   if (typeof window === 'undefined') {
