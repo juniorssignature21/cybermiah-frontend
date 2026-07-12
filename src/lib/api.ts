@@ -1,7 +1,7 @@
 
 function getDefaultApiBaseUrl() {
   if (typeof window === 'undefined') {
-    return ' https://a763-102-90-99-154.ngrok-free.app';
+    return 'http://127.0.0.1:8000';
   }
   if (import.meta.env.PROD) {
     return `${window.location.origin}/api`;
@@ -31,6 +31,7 @@ export function getToken(): string | null {
       memoryToken = sessionToken;
       return sessionToken;
     }
+    
   } catch (e) {
     // ignore
   }

@@ -23,20 +23,14 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           <span className="font-serif text-lg font-bold tracking-tight text-sidebar-foreground">Control Room</span>
         </div>
         <nav className="flex-1 p-4 space-y-1">
-          <Link href="/admin">
-            <a className="block px-4 py-2 text-sm font-medium rounded text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
-              Live Dashboard
-            </a>
+          <Link href="/admin" className="block px-4 py-2 text-sm font-medium rounded text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+            Live Dashboard
           </Link>
-          <Link href="/admin/quizzes">
-            <a className="block px-4 py-2 text-sm font-medium rounded text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
-              Manage Quizzes
-            </a>
+          <Link href="/admin/quizzes" className="block px-4 py-2 text-sm font-medium rounded text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+            Manage Quizzes
           </Link>
-          <Link href="/admin/results">
-            <a className="block px-4 py-2 text-sm font-medium rounded text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
-              Results & Exports
-            </a>
+          <Link href="/admin/results" className="block px-4 py-2 text-sm font-medium rounded text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
+            Results & Exports
           </Link>
         </nav>
         <div className="p-4 border-t border-sidebar-border">

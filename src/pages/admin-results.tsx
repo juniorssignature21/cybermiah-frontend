@@ -1,9 +1,9 @@
-import { useAdminResults } from "@/lib/hooks";
+import { useAdminResults, useQuizzes } from "@/lib/hooks";
 import { Button } from "@/components/ui/button";
 import { fetchApi } from "@/lib/api";
-import { Download, AlertTriangle } from "lucide-react";
-import { useState } from "react";
-import { Link } from "wouter";
+import { Download, AlertTriangle, Users, BarChart3 } from "lucide-react";
+import { useState, useMemo } from "react";
+import { useLocation } from "wouter";
 
 type AdminResultRow = {
   attempt_id: string;
@@ -17,9 +17,34 @@ type AdminResultRow = {
 };
 
 export default function AdminResults() {
+  const [, setLocation] = useLocation();
   const [filterQuiz, setFilterQuiz] = useState<string>("all");
-  const { data: results, isLoading, isError, error } = useAdminResults(filterQuiz);
+  const [filterCohort, setFilterCohort] = useState<string>("all");
+  const { data: results, isLoading, isError, error } = useAdminResults(filterQuiz !== 'all' ? filterQuiz : undefined, filterCohort !== 'all' ? filterCohort : undefined);
+  const { data: quizzes } = useQuizzes();
   const [exportError, setExportError] = useState<string | null>(null);
+
+  // Calculate statistics
+  const stats = useMemo(() => {
+    if (!results || results.length === 0) return { totalAttempts: 0, avgScore: 0, flaggedCount: 0, uniqueStudents: new Set() };
+    
+    const scores = results
+      .filter(r => r.score !== null && r.score !== undefined)
+      .map(r => r.score as number);
+    
+    const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+    const flaggedCount = results.filter(r => r.status === 'flagged').length;
+    const uniqueStudents = new Set(results.map(r => r.student_email));
+
+    return { totalAttempts: results.length, avgScore, flaggedCount, uniqueStudents: uniqueStudents.size };
+  }, [results]);
+
+  // Get unique cohorts from results
+  const cohorts = useMemo(() => {
+    if (!results) return [];
+    const unique = new Set(results.map(r => r.cohort).filter(c => c));
+    return Array.from(unique).sort();
+  }, [results]);
 
   const handleExport = async () => {
     // The endpoint streams a CSV. Route through the shared API client so
@@ -41,11 +66,11 @@ export default function AdminResults() {
   };
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
+    <div className="p-8 max-w-7xl mx-auto">
       <div className="flex justify-between items-end mb-8">
         <div>
           <h1 className="text-3xl font-serif mb-2">Results & Exports</h1>
-          <p className="text-muted-foreground">View all student attempt records.</p>
+          <p className="text-muted-foreground">View and analyze student attempt records.</p>
         </div>
         <Button onClick={handleExport} variant="secondary">
           <Download className="w-4 h-4 mr-2" /> Export CSV
@@ -57,6 +82,79 @@ export default function AdminResults() {
           <AlertTriangle className="w-4 h-4" /> {exportError}
         </div>
       )}
+
+      {/* Statistics Cards */}
+      {!isLoading && !isError && results && results.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-card border p-6 rounded-lg shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground mb-1">Total Attempts</div>
+                <div className="text-3xl font-bold text-foreground">{stats.totalAttempts}</div>
+              </div>
+              <BarChart3 className="w-8 h-8 text-muted-foreground" />
+            </div>
+          </div>
+          <div className="bg-card border p-6 rounded-lg shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground mb-1">Unique Students</div>
+                <div className="text-3xl font-bold text-foreground">{stats.uniqueStudents}</div>
+              </div>
+              <Users className="w-8 h-8 text-muted-foreground" />
+            </div>
+          </div>
+          <div className="bg-card border p-6 rounded-lg shadow-sm">
+            <div>
+              <div className="text-sm text-muted-foreground mb-1">Average Score</div>
+              <div className="text-3xl font-bold text-primary">{stats.avgScore.toFixed(1)}%</div>
+            </div>
+          </div>
+          <div className="bg-card border p-6 rounded-lg shadow-sm">
+            <div>
+              <div className="text-sm text-muted-foreground mb-1">Flagged Attempts</div>
+              <div className={`text-3xl font-bold ${stats.flaggedCount > 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                {stats.flaggedCount}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Filters */}
+      <div className="bg-card border p-6 rounded-lg mb-6 shadow-sm">
+        <h3 className="text-sm font-medium text-foreground mb-4">Filters</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm text-muted-foreground mb-2">Quiz</label>
+            <select
+              value={filterQuiz}
+              onChange={(e) => setFilterQuiz(e.target.value)}
+              className="w-full px-3 py-2 border rounded-lg bg-background text-foreground"
+            >
+              <option value="all">All Quizzes</option>
+              {quizzes?.map(q => (
+                <option key={q.id} value={q.id}>{q.title}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm text-muted-foreground mb-2">Cohort</label>
+            <select
+              value={filterCohort}
+              onChange={(e) => setFilterCohort(e.target.value)}
+              className="w-full px-3 py-2 border rounded-lg bg-background text-foreground"
+            >
+              <option value="all">All Cohorts</option>
+              {cohorts.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Results Table */}
 
       {isError ? (
         <div className="p-4 border border-destructive/20 text-destructive rounded bg-destructive/5">
@@ -114,9 +212,13 @@ export default function AdminResults() {
                       )}
                     </td>
                     <td className="p-4 text-right">
-                      <Link href={`/admin/timeline/${r.attempt_id}`}>
-                        <Button variant="outline" size="sm">Timeline</Button>
-                      </Link>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setLocation(`/admin/timeline/${r.attempt_id}`)}
+                      >
+                        Timeline
+                      </Button>
                     </td>
                   </tr>
                 ))}
