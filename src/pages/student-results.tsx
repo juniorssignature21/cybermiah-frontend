@@ -1,42 +1,34 @@
 import { useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { AlertTriangle, Clock3, ChartColumnBig, CheckCircle2, BadgePercent, ArrowRight, Sparkles } from "lucide-react";
-import { useQuizzes, useMyAttemptsByQuiz } from "@/lib/hooks";
+import { useMyAttempts } from "@/lib/hooks";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 export default function StudentResults() {
-  const { data: quizzes } = useQuizzes();
-  const attemptsByQuiz = useMyAttemptsByQuiz();
+  const { data: attempts } = useMyAttempts();
   const [, setLocation] = useLocation();
 
   const completedAttempts = useMemo(() => {
-    return Object.entries(attemptsByQuiz)
-      .map(([quizId, attemptState]) => {
-        const attempt = attemptState.data;
-        const quiz = quizzes?.find(q => q.id === quizId);
-        return attempt && quiz && (attempt.status === "submitted" || attempt.status === "flagged")
-          ? { quiz, attempt }
-          : null;
-      })
-      .filter((item): item is NonNullable<typeof item> => Boolean(item))
+    return (attempts ?? [])
+      .filter(attempt => attempt.status === "submitted" || attempt.status === "flagged")
       .sort((a, b) => {
-        const aDate = a.attempt.submitted_at ?? a.attempt.started_at;
-        const bDate = b.attempt.submitted_at ?? b.attempt.started_at;
+        const aDate = a.submitted_at ?? a.started_at;
+        const bDate = b.submitted_at ?? b.started_at;
         return new Date(bDate).getTime() - new Date(aDate).getTime();
       });
-  }, [attemptsByQuiz, quizzes]);
+  }, [attempts]);
 
   const stats = useMemo(() => {
     const scores = completedAttempts
-      .map(({ attempt }) => attempt.score)
+      .map(attempt => attempt.score)
       .filter((score): score is number => typeof score === "number");
 
     const completed = completedAttempts.length;
     const averageScore = scores.length ? scores.reduce((sum, score) => sum + score, 0) / scores.length : 0;
     const bestScore = scores.length ? Math.max(...scores) : 0;
-    const flagged = completedAttempts.filter(({ attempt }) => attempt.status === "flagged").length;
+    const flagged = completedAttempts.filter(attempt => attempt.status === "flagged").length;
 
     return { completed, averageScore, bestScore, flagged };
   }, [completedAttempts]);
@@ -124,14 +116,14 @@ export default function StudentResults() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {completedAttempts.map(({ quiz, attempt }) => {
+                  {completedAttempts.map((attempt) => {
                     const isFlagged = attempt.status === "flagged";
                     return (
                       <div key={attempt.id} className="rounded-xl border bg-background/80 p-4 transition-colors hover:border-primary/30 hover:bg-primary/5">
                         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                           <div className="space-y-2">
                             <div className="flex flex-wrap items-center gap-2">
-                              <h3 className="text-base font-medium">{quiz.title}</h3>
+                              <h3 className="text-base font-medium">{attempt.quiz_title}</h3>
                               <Badge variant={isFlagged ? "destructive" : "secondary"}>
                                 {isFlagged ? (
                                   <>
@@ -183,17 +175,17 @@ export default function StudentResults() {
                 {latestAttempt ? (
                   <div className="space-y-4">
                     <div>
-                      <div className="text-sm text-muted-foreground">{latestAttempt.quiz.title}</div>
+                      <div className="text-sm text-muted-foreground">{latestAttempt.quiz_title}</div>
                       <div className="mt-1 text-4xl font-mono font-bold text-primary">
-                        {latestAttempt.attempt.score !== undefined && latestAttempt.attempt.score !== null ? `${latestAttempt.attempt.score.toFixed(1)}%` : "-"}
+                        {latestAttempt.score !== undefined && latestAttempt.score !== null ? `${latestAttempt.score.toFixed(1)}%` : "-"}
                       </div>
                     </div>
                     <div className="rounded-lg border bg-muted/20 p-4 text-sm text-muted-foreground">
-                      {latestAttempt.attempt.status === "flagged"
+                      {latestAttempt.status === "flagged"
                         ? "This result was flagged by proctoring."
                         : "This result was successfully recorded and is ready to review."}
                     </div>
-                    <Button className="w-full" onClick={() => setLocation(`/result/${latestAttempt.attempt.id}`)}>
+                    <Button className="w-full" onClick={() => setLocation(`/result/${latestAttempt.id}`)}>
                       Open latest result
                     </Button>
                   </div>

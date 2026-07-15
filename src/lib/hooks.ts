@@ -35,6 +35,17 @@ export interface Attempt {
   auto_submitted?: boolean;
 }
 
+export interface StudentAttempt {
+  id: string;
+  quiz_id: string;
+  quiz_title: string;
+  status: 'in_progress' | 'submitted' | 'flagged';
+  started_at: string;
+  submitted_at?: string;
+  auto_submitted?: boolean;
+  score?: number;
+}
+
 // Hooks
 
 export function useQuizzes() {
@@ -143,6 +154,13 @@ export function useMyAttemptsByQuiz() {
   });
 
   return byQuizId;
+}
+
+export function useMyAttempts() {
+  return useQuery({
+    queryKey: ['attempts', 'mine'],
+    queryFn: () => fetchApi<StudentAttempt[]>('/attempts/mine'),
+  });
 }
 
 export function useProctoringEvent() {
