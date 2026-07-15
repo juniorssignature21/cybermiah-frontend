@@ -12,6 +12,7 @@ import Login from '@/pages/login';
 import StudentRegister from '@/pages/register-student';
 import AdminRegister from '@/pages/register-admin';
 import StudentDashboard from '@/pages/student-dashboard';
+import StudentResults from '@/pages/student-results';
 import ExamRoom from '@/pages/exam-room';
 import ExamResult from '@/pages/exam-result';
 import AdminLive from '@/pages/admin-live';
@@ -77,6 +78,7 @@ function Router() {
 
       {/* Student Routes */}
       <Route path="/" component={() => <ProtectedRoute component={StudentDashboard} roleRequired="student" layout={StudentLayout} />} />
+      <Route path="/results" component={() => <ProtectedRoute component={StudentResults} roleRequired="student" layout={StudentLayout} />} />
       <Route path="/attempt/:id" component={() => <ProtectedRoute component={ExamRoom} roleRequired="student" layout={StudentLayout} />} />
       <Route path="/result/:id" component={() => <ProtectedRoute component={ExamResult} roleRequired="student" layout={StudentLayout} />} />
       <Route component={NotFound} />

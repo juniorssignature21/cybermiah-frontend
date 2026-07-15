@@ -68,10 +68,20 @@ export function StudentLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen flex flex-col bg-background">
       {!isTakingExam && (
         <header className="h-16 border-b flex items-center justify-between px-6 bg-card">
-          <div className="font-serif text-xl tracking-tight text-foreground">Student Portal</div>
-          <Button variant="ghost" size="sm" onClick={logout}>
-            <LogOut className="w-4 h-4 mr-2" /> Exit
-          </Button>
+          <div className="flex items-center gap-4">
+            <div className="font-serif text-xl tracking-tight text-foreground">Student Portal</div>
+            <Link href="/results" className="hidden text-sm text-muted-foreground transition-colors hover:text-foreground md:inline-flex">
+              My Results
+            </Link>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="ghost" size="sm" className="md:hidden">
+              <Link href="/results">My Results</Link>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={logout}>
+              <LogOut className="w-4 h-4 mr-2" /> Exit
+            </Button>
+          </div>
         </header>
       )}
       <main className="flex-1">
