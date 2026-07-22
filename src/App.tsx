@@ -9,6 +9,8 @@ import { ApiError } from '@/lib/api';
 
 // Pages
 import Login from '@/pages/login';
+import ForgotPassword from '@/pages/forgot-password';
+import ResetPassword from '@/pages/reset-password';
 import StudentRegister from '@/pages/register-student';
 import AdminRegister from '@/pages/register-admin';
 import StudentDashboard from '@/pages/student-dashboard';
@@ -66,6 +68,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/login" component={Login} />
+      <Route path="/forgot-password" component={ForgotPassword} />
+      <Route path="/reset-password" component={ResetPassword} />
       <Route path="/register/student" component={StudentRegister} />
       <Route path="/register/admin" component={AdminRegister} />
 
